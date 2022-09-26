@@ -18,10 +18,10 @@ instance.
 The basic steps are:
 
 1. Update a configuration script, `source.sh`.
-1. Create, configure, and direct API traffic to a new, temporary Apigee instance in a new region.
-2. Delete the original instance (the instance you are replacing).
-3. Create, configure, and direct API traffic to a new instance in the same region as the original instance.
-4. Delete the temporary instance.
+2. Create, configure, and direct API traffic to a new, temporary Apigee instance in a new region.
+3. Delete the original instance (the instance you are replacing).
+4. Create, configure, and direct API traffic to a new instance in the same region as the original instance.
+5. Delete the temporary instance.
 
 ### 1. Update `source.sh`
 
@@ -33,8 +33,8 @@ their tasks.
 The basic steps are:
 
 1. Fill in your Google Cloud project ID at the top of the `source.sh` script.
-1. Copy the function block.
-2. Change the name of the first function to: `INIT_REGION_${REGION_ID}`, where `REGION_ID` is
+2. Copy the function block.
+3. Change the name of the first function to: `INIT_REGION_${REGION_ID}`, where `REGION_ID` is
 the name of the region in which you will create a temporary instance. This region cannot be
 the same as the region in which your existing instance is provisioned. For example, if
 the new region is `us-east1`, rename the function:
@@ -44,8 +44,8 @@ the new region is `us-east1`, rename the function:
     You must follow the pattern where the region name is all caps with an underscore `_`
     instead of a hyphen. For example: `US_EAST1`
 
-3. Fill in values for the templated variables. See a brief description of each variable below.
-4. Change the name of the second function and configure it for the region where the existing
+4. Fill in values for the templated variables. See a brief description of each variable below.
+5. Change the name of the second function and configure it for the region where the existing
 instance is provisioned. For example, if the existing region is `us-west1`, rename the second
 function:
 
@@ -107,13 +107,13 @@ Run these scripts if the existing instance was configured with a MIG (most commo
 
 ```shell
 1. REGION=##The Google Cloud region to install the new, temporary Apigee instance. Example: "us-east1"##
-1. bash 1_manage_instance.sh -r ${REGION} --create
+2. bash 1_manage_instance.sh -r ${REGION} --create
    # This script can take up to an hour to complete.
-2. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
+3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
    # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.
-3. bash 3_manage_environments.sh -r ${REGION} --attach
-4. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --create
-5. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --attach
+4. bash 3_manage_environments.sh -r ${REGION} --attach
+5. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --create
+6. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --attach
 ```
 
 #### ► Using Network Endpoint Group (NEG)
@@ -122,12 +122,12 @@ Run these scripts if the existing instance was configured with a NEG (uncommon):
 
 ```shell
 1. REGION=##The Google Cloud region to install the new, temporary Apigee instance. Example: "us-east1"##
-1. bash 1_manage_instance.sh -r ${REGION} --create
-2. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
+2. bash 1_manage_instance.sh -r ${REGION} --create
+3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
    # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.
-3. bash 3_manage_environments.sh -r ${REGION} --attach
-4. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --create
-5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --attach
+4. bash 3_manage_environments.sh -r ${REGION} --attach
+5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --create
+6. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --attach
 ```
 
 ### 3. Remove the existing Apigee instance
@@ -146,12 +146,12 @@ Run these scripts if the existing instance was configured with a MIG (most commo
 
 ```shell
 1. REGION=##The Google Cloud region where the existing instance that you are replacing is deployed. Example: "us-west1"##
-1. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --detach
-2. bash 3_manage_environments.sh -r ${REGION} --detach
-3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
+2. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --detach
+3. bash 3_manage_environments.sh -r ${REGION} --detach
+4. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
    # If you reserved NAT Addresses, remove them from your target allow-listing.
-4. bash 1_manage_instance.sh -r ${REGION} --delete
-5. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --delete
+5. bash 1_manage_instance.sh -r ${REGION} --delete
+6. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --delete
 ```
 
 #### ► Using Network-Endpoint-Group (NEG)
@@ -161,12 +161,12 @@ Run these scripts if the existing instance was configured with a NEG (uncommon):
 
 ```shell
 1. REGION=##The Google Cloud region where the existing instance that you are replacing is deployed. Example: "us-west1"##
-1. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --detach
-2. bash 3_manage_environments.sh -r ${REGION} --detach
-3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
+2. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --detach
+3. bash 3_manage_environments.sh -r ${REGION} --detach
+4. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
    # If you reserved NAT Addresses, remove them from your target allow-listing.
-4. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --delete
-5. bash 1_manage_instance.sh -r ${REGION} --delete
+5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --delete
+6. bash 1_manage_instance.sh -r ${REGION} --delete
 ```
 
 
@@ -187,12 +187,12 @@ Run these scripts if the original instance was configured with a MIG (most commo
 
 ```shell
 1. REGION=##The Google Cloud region to install the new Apigee instance. Example: "us-west1"##
-1. bash 1_manage_instance.sh -r ${REGION} --create
-2. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
+2. bash 1_manage_instance.sh -r ${REGION} --create
+3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
    # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.
-3. bash 3_manage_environments.sh -r ${REGION} --attach
-4. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --create
-5. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --attach
+4. bash 3_manage_environments.sh -r ${REGION} --attach
+5. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --create
+6. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --attach
 ```
 
 #### ► Using Network Endpoint Group (NEG)
@@ -201,12 +201,12 @@ Run these scripts if the original instance was configured with a NEG (uncommon):
 
 ```shell
 1. REGION=##The Google Cloud region to install the new Apigee instance. Example: "us-west1"##
-1. bash 1_manage_instance.sh -r ${REGION} --create
-2. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
+2. bash 1_manage_instance.sh -r ${REGION} --create
+3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
    # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.
-3. bash 3_manage_environments.sh -r ${REGION} --attach
-4. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --create
-5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --attach
+4. bash 3_manage_environments.sh -r ${REGION} --attach
+5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --create
+6. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --attach
 ```
 
 
@@ -226,12 +226,12 @@ Run these scripts if the original instance was configured with a MIG (most commo
 
 ```shell
 1. REGION=##The Google Cloud region where the temporary instance is deployed. Example: "us-east1"##
-1. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --detach
-2. bash 3_manage_environments.sh -r ${REGION} --detach
-3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
+2. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --detach
+3. bash 3_manage_environments.sh -r ${REGION} --detach
+4. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
    # If you reserved NAT Addresses, remove them from your target allow-listing.
-4. bash 1_manage_instance.sh -r ${REGION} --delete
-5. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --delete
+5. bash 1_manage_instance.sh -r ${REGION} --delete
+6. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --delete
 ```
 
 #### ► Using Network-Endpoint-Group (NEG)
@@ -241,12 +241,12 @@ Run these scripts if the original instance was configured with a NEG (uncommon):
 
 ```shell
 1. REGION=##The Google Cloud region where the temporary instance is deployed. Example: "us-east1"##
-1. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --detach
-2. bash 3_manage_environments.sh -r ${REGION} --detach
-3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
+2. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --detach
+3. bash 3_manage_environments.sh -r ${REGION} --detach
+4. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
    # If you reserved NAT Addresses, remove them from your target allow-listing.
-4. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --delete
-5. bash 1_manage_instance.sh -r ${REGION} --delete
+5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --delete
+6. bash 1_manage_instance.sh -r ${REGION} --delete
 ```
 
 
