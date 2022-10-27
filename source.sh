@@ -29,6 +29,7 @@ function INIT_REGION_TBD {
   # Apigee Instance Configurations.
   export INSTANCE_NAME=             # Name of the Apigee Instance.
   export RUNTIME_LOCATION=          # Region of the Apigee Instance.
+  export DISK_KEY_PROJECT_ID=       # Project ID where KMS Keys exists. If left empty, this defaults to Apigee Org's PROJECT_ID.
   export DISK_KEY_RING_NAME=        # Name of the KMS Key Ring.
   export DISK_KEY_NAME=             # Name of the KMS Key.
   export IP_RANGE=                  # [CSV] /22 & /28 IP Ranges. [OPTIONAL].
