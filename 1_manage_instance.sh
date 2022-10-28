@@ -47,14 +47,14 @@ function provision_kms {
   # Check and create KMS Key Ring.
   keyring=$(gcloud kms keyrings describe "${DISK_KEY_RING_NAME}" \
     --location "${RUNTIME_LOCATION}" \
-    --project "${PROJECT_ID}"        \
+    --project "${kms_project_id}"        \
     --format json 2>/dev/null | jq -r .name)
   if [[ "${keyring}" == "${kms_keyring_fmt}" ]]; then
     log "kms keyring '${kms_keyring_fmt}' is already present. Continuing."
   else
     response=$(gcloud kms keyrings create "${DISK_KEY_RING_NAME}" \
       --location "${RUNTIME_LOCATION}" \
-      --project "${PROJECT_ID}" 2>&1)
+      --project "${kms_project_id}" 2>&1)
     [[ $? -ne 0 ]] && logerr "failed to create kms keyring '${kms_keyring_fmt}'. err: '${response}'" && return 1
     log "successfully created kms keyring '${kms_keyring_fmt}'"
   fi
@@ -63,7 +63,7 @@ function provision_kms {
   key=$(gcloud kms keys describe "${DISK_KEY_NAME}" \
     --keyring "${DISK_KEY_RING_NAME}" \
     --location "${RUNTIME_LOCATION}"  \
-    --project "${PROJECT_ID}"         \
+    --project "${kms_project_id}"         \
     --format json 2>/dev/null | jq -r .name)
   if [[ "${key}" == "${kms_key_fmt}" ]]; then
     log "kms key '${kms_key_fmt}' is already present. Continuing."
@@ -71,7 +71,7 @@ function provision_kms {
     response=$(gcloud kms keys create "${DISK_KEY_NAME}" --purpose "encryption" \
       --keyring "${DISK_KEY_RING_NAME}" \
       --location "${RUNTIME_LOCATION}"  \
-      --project "${PROJECT_ID}" 2>&1)
+      --project "${kms_project_id}" 2>&1)
     [[ $? -ne 0 ]] && logerr "failed to create kms key '${kms_key_fmt}'. err: '${response}'" && return 1
     log "successfully created kms key '${kms_key_fmt}'"
   fi
@@ -82,7 +82,7 @@ function provision_kms {
     --keyring "${DISK_KEY_RING_NAME}" \
     --member "serviceAccount:${apigee_agent}" \
     --role roles/cloudkms.cryptoKeyEncrypterDecrypter \
-    --project "${PROJECT_ID}" 2>&1)
+    --project "${kms_project_id}" 2>&1)
 
   [[ $? -ne 0 ]] && logerr "failed to grant access for the Apigee Service Agent '${apigee_agent}' to use the kms key: '${kms_key_fmt}'. err: '${response}'" && return 1
   log "successfully granted Apigee Service Agent '${apigee_agent}' to use kms key."
@@ -236,7 +236,9 @@ init_region "${REGION}" || exit 1
 # Global variables.
 op_sleep_time=60 # Wait time in seconds before rechecking operation status.
 instance_op_id=""
-kms_keyring_fmt="projects/${PROJECT_ID}/locations/${RUNTIME_LOCATION}/keyRings/${DISK_KEY_RING_NAME}"
+kms_project_id="${DISK_KEY_PROJECT_ID}"
+[[ -z "${kms_project_id}" ]] && kms_project_id="${PROJECT_ID}"
+kms_keyring_fmt="projects/${kms_project_id}/locations/${RUNTIME_LOCATION}/keyRings/${DISK_KEY_RING_NAME}"
 kms_key_fmt="${kms_keyring_fmt}/cryptoKeys/${DISK_KEY_NAME}"
 target_resource="organizations/${PROJECT_ID}/instances/${INSTANCE_NAME}"
 

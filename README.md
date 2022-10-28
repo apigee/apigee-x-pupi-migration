@@ -59,6 +59,7 @@ Following is a summary of the values you must provide in the templated functions
 -   `PROJECT_ID`: Project ID of Apigee organization.
 -   `INSTANCE_NAME`: Name of the Apigee instance to create / delete.
 -   `RUNTIME_LOCATION`: Actual GCP region of the Apigee instance.
+-   `DISK_KEY_PROJECT_ID`: Project ID of KMS Key used for disk encryption.
 -   `DISK_KEY_RING_NAME`: Name of the KMS Key Ring used for disk encryption. If
     it doesn't already exist, it will be created automatically. It will be
     reused if it already exists.
