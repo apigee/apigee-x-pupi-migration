@@ -1,40 +1,7 @@
-# Apigee-X Instance Recreation with downtime and data loss.
+# Configuration Script
 
-## Overview
-
-To recreate an instance with downtime and data loss, you need to drain down and
-delete the existing instance. Create a new instance in the same region and
-direct API traffic to the new instance.
-
-Apigee has provided a set of scripts in this project that perform all of the
-required steps to recreate an instance.
-
-The basic steps are:
-
-1.  Update a configuration script, `source.sh`.
-2.  Delete the original instance (the instance you are replacing).
-3.  Create, configure, and direct API traffic to a new instance in the same
-    region as the original instance.
-
-### 1. Update `source.sh`
-
-This script defines a templated function that you must copy and modify. The
-scripts you will run later call these functions to perform their tasks.
-
-The basic steps are:
-
-1.  Fill in your Google Cloud project ID at the top of the `source.sh` script.
-2.  Change the name of the first function to: `INIT_REGION_${REGION_ID}`, where
-    `REGION_ID` is the name of the region of the current instance. For example,
-    if the region is `us-east1`, rename the function:
-
-    `INIT_REGION_US_EAST1`
-
-    You must follow the pattern where the region name is all caps with an
-    underscore `_` instead of a hyphen. For example: `US_EAST1`
-
-3.  Fill in values for the templated variables. See a brief description of each
-    variable below.
+The script source.sh defines a templated function that you must copy and modify.
+The scripts you will run later call these functions to perform their tasks.
 
 Following is a summary of the values you must provide in the templated
 functions:
@@ -70,6 +37,44 @@ functions:
     ***[Required only when using MIG proxy]***
 -   `NEG_NAME`: Name of the PSC network-endpoint-group for apigee
     service-attachment. ***[Required only when using PSC NEG]***
+
+# Apigee-X Instance Recreation with downtime and data loss.
+
+## Overview
+
+To recreate an instance with downtime and data loss, you need to drain down and
+delete the existing instance. Create a new instance in the same region and
+direct API traffic to the new instance.
+
+Apigee has provided a set of scripts in this project that perform all of the
+required steps to recreate an instance.
+
+The basic steps are:
+
+1.  Update a configuration script, `source.sh`.
+2.  Delete the original instance (the instance you are replacing).
+3.  Create, configure, and direct API traffic to a new instance in the same
+    region as the original instance.
+
+### 1. Update `source.sh`
+
+This script defines a templated function that you must copy and modify. The
+scripts you will run later call these functions to perform their tasks.
+
+The basic steps are:
+
+1.  Fill in your Google Cloud project ID at the top of the `source.sh` script.
+2.  Change the name of the first function to: `INIT_REGION_${REGION_ID}`, where
+    `REGION_ID` is the name of the region of the existing instance. For example,
+    if the region is `us-east1`, rename the function:
+
+    `INIT_REGION_US_EAST1`
+
+    You must follow the pattern where the region name is all caps with an
+    underscore `_` instead of a hyphen. For example: `US_EAST1`
+
+3.  Fill in values for the templated variables. See a brief description of each
+    variable [here](#configuration-script)
 
 ### 2. Remove the existing Apigee instance
 
@@ -190,7 +195,7 @@ The basic steps are:
     underscore `_` instead of a hyphen. For example: `US_EAST1`
 
 4.  Fill in values for the templated variables. See a brief description of each
-    variable below.
+    variable [here](#configuration-script).
 
 5.  Change the name of the second function and configure it for the region where
     the existing instance is provisioned. For example, if the existing region is
@@ -200,40 +205,8 @@ The basic steps are:
 
     Follow the same capitalization pattern as before.
 
-Following is a summary of the values you must provide in the templated
-functions:
-
--   `PROJECT_ID`: Project ID of Apigee organization.
--   `INSTANCE_NAME`: Name of the Apigee instance to create / delete.
--   `RUNTIME_LOCATION`: Actual GCP region of the Apigee instance.
--   `DISK_KEY_PROJECT_ID`: Project ID of KMS Key used for disk encryption.
--   `DISK_KEY_RING_NAME`: Name of the KMS Key Ring used for disk encryption. If
-    it doesn't already exist, it will be created automatically. It will be
-    reused if it already exists.
--   `DISK_KEY_NAME`: Name of the KMS Key used for disk encryption. If it doesn't
-    already exist, it will be created automatically. It will be reused if it
-    already exists.
--   `IP_RANGE`: ***[OPTIONAL]*** Comma separated values of /22 & /28 IP Ranges.
-    If provided, make sure the ranges are part of CIDR blocks allocated to the
-    service networking. ***See
-    [Configure service networking](https://cloud.google.com/apigee/docs/api-platform/get-started/configure-service-networking)
-    for more details.***
--   `CONSUMER_ACCEPT_LIST`: ***[OPTIONAL]*** Comma separated values of GCP
-    projects for PSC allow-listing.
--   `ENVIRONMENTS_LIST`: Comma separated values of Environments to attach
-    to/detach from the Apigee instance.
-
-**Northbound Routing Configurations:**
-
--   `VPC_NAME`: Name of the VPC network peered with Apigee. For shared-vpc, use
-    a full-path.
--   `VPC_SUBNET`: Name of the VPC subnet used to create managed-instance-group
-    for Bridge VMs.
--   `BACKEND_SERVICE`: Name of the backend-service load-balancing the MIG/NEG.
--   `MIG_NAME`: Name of the managed-instance-group hosting the Bridge VMs.
-    ***[Required only when using MIG proxy]***
--   `NEG_NAME`: Name of the PSC network-endpoint-group for apigee
-    service-attachment. ***[Required only when using PSC NEG]***
+    Fill in values for the templated variables. See a brief description of each
+    variable [here](#configuration-script)
 
 ### 2. Create a temporary instance
 
@@ -385,7 +358,7 @@ The basic steps are:
     underscore `_` instead of a hyphen. For example: `US_EAST1`
 
 4.  Fill in values for the templated variables. See a brief description of each
-    variable below.
+    variable [here](#configuration-script)
 
 5.  Change the name of the second function and configure it for the region where
     the existing instance is provisioned. For example, if the existing region is
@@ -395,40 +368,8 @@ The basic steps are:
 
     Follow the same capitalization pattern as before.
 
-Following is a summary of the values you must provide in the templated
-functions:
-
--   `PROJECT_ID`: Project ID of Apigee organization.
--   `INSTANCE_NAME`: Name of the Apigee instance to create / delete.
--   `RUNTIME_LOCATION`: Actual GCP region of the Apigee instance.
--   `DISK_KEY_PROJECT_ID`: Project ID of KMS Key used for disk encryption.
--   `DISK_KEY_RING_NAME`: Name of the KMS Key Ring used for disk encryption. If
-    it doesn't already exist, it will be created automatically. It will be
-    reused if it already exists.
--   `DISK_KEY_NAME`: Name of the KMS Key used for disk encryption. If it doesn't
-    already exist, it will be created automatically. It will be reused if it
-    already exists.
--   `IP_RANGE`: ***[OPTIONAL]*** Comma separated values of /22 & /28 IP Ranges.
-    If provided, make sure the ranges are part of CIDR blocks allocated to the
-    service networking. ***See
-    [Configure service networking](https://cloud.google.com/apigee/docs/api-platform/get-started/configure-service-networking)
-    for more details.***
--   `CONSUMER_ACCEPT_LIST`: ***[OPTIONAL]*** Comma separated values of GCP
-    projects for PSC allow-listing.
--   `ENVIRONMENTS_LIST`: Comma separated values of Environments to attach
-    to/detach from the Apigee instance.
-
-**Northbound Routing Configurations:**
-
--   `VPC_NAME`: Name of the VPC network peered with Apigee. For shared-vpc, use
-    a full-path.
--   `VPC_SUBNET`: Name of the VPC subnet used to create managed-instance-group
-    for Bridge VMs.
--   `BACKEND_SERVICE`: Name of the backend-service load-balancing the MIG/NEG.
--   `MIG_NAME`: Name of the managed-instance-group hosting the Bridge VMs.
-    ***[Required only when using MIG proxy]***
--   `NEG_NAME`: Name of the PSC network-endpoint-group for apigee
-    service-attachment. ***[Required only when using PSC NEG]***
+    Fill in values for the templated variables. See a brief description of each
+    variable [here](#configuration-script)
 
 ### 2. Provision the new, temporary instance
 
