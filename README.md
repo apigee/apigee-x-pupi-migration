@@ -13,16 +13,17 @@ higher limits.
 This project provides multiple options to recreate Apigee instance in order to
 address the IP issue and take advantage of PUPI with Apigee.
 
-*   ***Recreate instane with no downtime and no data loss***: This is the
-    recommended approach. Ideal if you are already mutli region Apigee or don't
-    want any data loss or downtime.
+*   ***[Recreate instane with no downtime and no data loss](./recreate_with_no_downtime_and_no_data_loss.md)***:
+    This is the recommended approach. Ideal if you are already mutli region
+    Apigee or don't want any data loss or downtime.
 
-*   ***Recreate instane with downtime but with data loss***: This is good if you
-    are okay with downtime(probably for dev or qa Apigee org) but still want to
-    retain cassandra data.
+*   ***[Recreate instane with downtime but with no data loss](./recreate_with_downtime_and_no_data_loss.md)***:
+    This is good if you are okay with downtime(probably for dev or qa Apigee
+    org) but still want to retain cassandra data.
 
-*   ***Recreate instane with downtime and data loss***: This is good if you are
-    okay with downtime(probably for dev or qa Apigee org).
+*   ***[Recreate instane with downtime and data loss](./recreate_with_downtime_and_data_loss.md)***:
+    This is good if you are okay with downtime(probably for dev or qa Apigee
+    org).
 
 Apigee provides configuration scripts and scripts to perform all the required
 tasks for the migration. Read below about the configuration and the scripts.
