@@ -1,8 +1,6 @@
 # Apigee-X Instance Recreation with Zero Downtime and Zero data loss.
 
-This project provides scripts that you can use to recreate Apigee instances
-without any downtime or any data-loss. For more information and use case
-details, see
+For more information and use case details, see
 [Recreating an Apigee instance with zero downtime](https://cloud.google.com/apigee/docs/api-platform/system-administration/instance-recreate).
 
 --------------------------------------------------------------------------------
@@ -51,7 +49,7 @@ The basic steps are:
     underscore `_` instead of a hyphen. For example: `US_EAST1`
 
 4.  Fill in values for the templated variables. See a brief description of each
-    variable [here](#configuration-script)
+    variable [here](./README.md#configuration-script)
 
 5.  Change the name of the second function and configure it for the region where
     the existing instance is provisioned. For example, if the existing region is
@@ -62,7 +60,7 @@ The basic steps are:
     Follow the same capitalization pattern as before.
 
     Fill in values for the templated variables. See a brief description of each
-    variable [here](#configuration-script)
+    variable [here](./README.md#configuration-script)
 
 ### 2. Provision the new, temporary instance
 

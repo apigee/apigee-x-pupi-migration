@@ -4,8 +4,9 @@
 
 To recreate an instance with downtime and no data loss, you need to first create
 a temporary instance in a new region and then you can drain down and delete the
-existing instance. Create a new instance in the same region and direct API
-traffic to the new instance. Delete the temporary instance.
+existing instance. Create a new instance in the same region as the original
+instance and direct API traffic to the new instance. Delete the temporary
+instance. Creation of temporary instance replicates the cassandra data.
 
 Apigee has provided a set of scripts in this project that perform all of the
 required steps to recreate an instance.
@@ -31,7 +32,7 @@ The basic steps are:
 3.  Change the name of the first function to: `INIT_REGION_${REGION_ID}`, where
     `REGION_ID` is the name of the region of the temporary instance. The region
     of the temporary instance must be different than the region of the existing
-    insatnce For example, if the region is `us-east1`, rename the function:
+    instance For example, if the region is `us-east1`, rename the function:
 
     `INIT_REGION_US_EAST1`
 
@@ -39,7 +40,7 @@ The basic steps are:
     underscore `_` instead of a hyphen. For example: `US_EAST1`
 
 4.  Fill in values for the templated variables. See a brief description of each
-    variable [here](#configuration-script).
+    variable [here](./README.md#configuration-script).
 
 5.  Change the name of the second function and configure it for the region where
     the existing instance is provisioned. For example, if the existing region is
@@ -50,12 +51,16 @@ The basic steps are:
     Follow the same capitalization pattern as before.
 
     Fill in values for the templated variables. See a brief description of each
-    variable [here](#configuration-script)
+    variable [here](./README.md#configuration-script)
 
 ### 2. Create a temporary instance
 
 Run these scripts to create the temporary instance and wait for the instance
 creation to finish.
+
+Important: Before doing this step, you must create network space in your project
+with additional IP ranges of /22 and /28 blocks. For details, see
+[Prerequisites](https://cloud.google.com/apigee/docs/api-platform/system-administration/instance-recreate#prerequisites).
 
 ```shell
 1. REGION=##The Google Cloud region to install the new Apigee instance. Example: "us-west1"##
@@ -115,7 +120,7 @@ Run these scripts if the original instance was configured with a MIG (most
 common):
 
 ```shell
-1. REGION=##The Google Cloud region to install the new Apigee instance. Example: "us-west1"##
+1. REGION=##The Google Cloud region of the original Apigee instance. Example: "us-west1"##
 2. bash 1_manage_instance.sh -r ${REGION} --create
 3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
    # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.
@@ -129,7 +134,7 @@ common):
 Run these scripts if the original instance was configured with a NEG (uncommon):
 
 ```shell
-1. REGION=##The Google Cloud region to install the new Apigee instance. Example: "us-west1"##
+1. REGION=##The Google Cloud region of the original Apigee instance. Example: "us-west1"##
 2. bash 1_manage_instance.sh -r ${REGION} --create
 3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
    # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.

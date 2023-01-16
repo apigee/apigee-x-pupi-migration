@@ -6,8 +6,8 @@ To recreate an instance with downtime and data loss, you need to drain down and
 delete the existing instance. Create a new instance in the same region and
 direct API traffic to the new instance.
 
-Apigee has provided a set of scripts in this project that perform all of the
-required steps to recreate an instance.
+Apigee has provided a set of scripts that perform all of the required steps to
+recreate an instance.
 
 The basic steps are:
 
@@ -34,7 +34,7 @@ The basic steps are:
     underscore `_` instead of a hyphen. For example: `US_EAST1`
 
 3.  Fill in values for the templated variables. See a brief description of each
-    variable [here](#configuration-script)
+    variable [here](./README.md#configuration-script)
 
 ### 2. Remove the existing Apigee instance
 
