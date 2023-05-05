@@ -65,7 +65,7 @@ The basic steps are:
     this existing instance but attached to the instance being recreated.
 
 8.  Change the name of the function and configure it for the region where other
-    Apigee instance is provisioned. Make sure to only include enviroments
+    Apigee instance is provisioned. Make sure to only include environments
     calculated in above step in "ENVIRONMENTS_LIST" template variable template
     variable. For example, if the region is `us-east1`, rename the second
     function:

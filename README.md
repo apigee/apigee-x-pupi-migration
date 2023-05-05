@@ -14,8 +14,16 @@ This project provides multiple options to recreate Apigee instance in order to
 address the IP issue and take advantage of PUPI with Apigee.
 
 *   ***[Recreate instance with no downtime and no data loss](./recreate_with_no_downtime_and_no_data_loss.md)***:
-    This is the recommended approach. Ideal if you are already mutli region
-    Apigee or don't want any data loss and downtime.
+    This is the recommended approach. Ideal if you are already multi region
+    Apigee but are not okay with other regions handling API requests temporarily
+    and don't want any data loss or downtime. This requires you to create a new
+    Apigee Instance.
+
+*   ***[Recreate instance with downtime and data loss - reuse other existing
+    instances](./recreate_with_no_downtime_and_no_data_existing_multi_region.md)***:
+    This is the recommended approach if you are already multi region Apigee and
+    are okay with other regions handling all the API requests temporarily and
+    don't want any data loss and downtime.
 
 *   ***[Recreate instance with downtime but with no data loss](./recreate_with_downtime_and_no_data_loss.md)***:
     This is good if you are okay with downtime(probably for dev or qa Apigee
