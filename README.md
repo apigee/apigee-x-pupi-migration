@@ -30,7 +30,9 @@ address the IP issue and take advantage of PUPI with Apigee.
 *   ***[Recreate instance with downtime but with no data loss](./recreate_with_downtime_and_no_data_loss.md)***:
     This is good if you are okay with downtime (probably suitable for
     non-production Apigee organizations) but still want to retain the runtime
-    data.
+    data. This requires you to create a new temporary Apigee Instance in a
+    different region than the existing ones. However, traffic re-routing is not
+    required.
 
 *   ***[Recreate instance with downtime and data loss](./recreate_with_downtime_and_data_loss.md)***:
     This is good if you are okay with downtime and data loss(probably suitable
