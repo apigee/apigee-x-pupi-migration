@@ -1,60 +1,54 @@
-# Apigee-X Instance Recreation with Zero Downtime
+# Instance Recreation
 
-This project provides scripts that you can use to recreate Apigee instances without
-any downtime or any data-loss. For more information and use case details, see
-[Recreating an Apigee instance with zero downtime](https://cloud.google.com/apigee/docs/api-platform/system-administration/instance-recreate).
+Apigee instances created before January 25, 2022, do not have sufficient
+internet protocol (IP) address space to allow Apigee workloads to scale to
+handle increasing API traffic and/or to allow you to add more than 10
+environments to an instance.
 
---------------------------------------------------------------------------------
+On January 24, 2022, Apigee introduced an enhancement to address this problem.
+The enhancement reduces the IP range required to peer your VPC network with
+Apigee and uses privately used public IPs (PUPI) to allow workloads to scale to
+higher limits.
 
-## Overview
+This project provides multiple options to recreate Apigee instance in order to
+address the IP issue and take advantage of PUPI with Apigee.
 
-To recreate an instance with zero downtime and no data loss, you need to first create a new instance in a
-new (expanded) region and direct API traffic to that new instance. Then, you can drain down the existing
-instance, delete it, and recreate it in the same region as the one you deleted.
+*   ***[Recreate instance with no downtime and no data loss](./recreate_with_no_downtime_and_no_data_loss.md)***:
+    This is the recommended approach. Ideal if you are already multi region
+    Apigee but are not okay with other existing regions handling API requests
+    temporarily and don't want any data loss or downtime. This requires you to
+    create a new temporary Apigee Instance in a different region than the
+    existing ones.
 
-Apigee has provided a set of scripts in this project that perform all of the required steps to recreate an
-instance. 
+*   ***[Recreate instance with downtime and data loss - reuse other existing
+    instances](./recreate_with_no_downtime_and_no_data_existing_multi_region.md)***:
+    This is the recommended approach if you are already multi region Apigee and
+    are okay with other existing regions handling all the API requests
+    temporarily and don't want any data loss and downtime. This approach does
+    not require you to create any temporary Apigee instances.
 
-The basic steps are:
+*   ***[Recreate instance with downtime but with no data loss](./recreate_with_downtime_and_no_data_loss.md)***:
+    This is good if you are okay with downtime (probably suitable for
+    non-production Apigee organizations) but still want to retain the runtime
+    data. This requires you to create a new temporary Apigee Instance in a
+    different region than the existing ones. However, traffic re-routing is not
+    required.
 
-1. Update a configuration script, `source.sh`.
-2. Create, configure, and direct API traffic to a new, temporary Apigee instance in a new region.
-3. Delete the original instance (the instance you are replacing).
-4. Create, configure, and direct API traffic to a new instance in the same region as the original instance.
-5. Delete the temporary instance.
+*   ***[Recreate instance with downtime and data loss](./recreate_with_downtime_and_data_loss.md)***:
+    This is good if you are okay with downtime and data loss(probably suitable
+    for non-production Apigee organizations).
 
-### 1. Update `source.sh`
+Apigee provides configuration scripts and scripts to perform all the required
+tasks for the migration. Read below about the configuration and the scripts.
 
-This script defines a templated function that you must copy and modify. When you are finished, the script will have
-two functions: one with parameter values for the existing instance (the one you are replacing),
-and one for a new, temporary instance. The scripts you will run later call these functions to perform
+# Configuration Script
+
+The script [source.sh](./source.sh) defines a templated function that you must
+copy and modify. The scripts you will run later call these functions to perform
 their tasks.
 
-The basic steps are:
-
-1. Fill in your Google Cloud project ID at the top of the `source.sh` script.
-2. Copy the function block.
-3. Change the name of the first function to: `INIT_REGION_${REGION_ID}`, where `REGION_ID` is
-the name of the region in which you will create a temporary instance. This region cannot be
-the same as the region in which your existing instance is provisioned. For example, if
-the new region is `us-east1`, rename the function:
-
-    `INIT_REGION_US_EAST1`
-
-    You must follow the pattern where the region name is all caps with an underscore `_`
-    instead of a hyphen. For example: `US_EAST1`
-
-4. Fill in values for the templated variables. See a brief description of each variable below.
-5. Change the name of the second function and configure it for the region where the existing
-instance is provisioned. For example, if the existing region is `us-west1`, rename the second
-function:
-
-    `INIT_REGION_US_WEST1`
-
-    Follow the same capitalization pattern as before.
-
-Following is a summary of the values you must provide in the templated functions:
-
+Following is a summary of the values you must provide in the templated
+functions:
 
 -   `PROJECT_ID`: Project ID of Apigee organization.
 -   `INSTANCE_NAME`: Name of the Apigee instance to create / delete.
@@ -85,171 +79,8 @@ Following is a summary of the values you must provide in the templated functions
 -   `BACKEND_SERVICE`: Name of the backend-service load-balancing the MIG/NEG.
 -   `MIG_NAME`: Name of the managed-instance-group hosting the Bridge VMs.
     ***[Required only when using MIG proxy]***
--   `NEG_NAME`: Name of the PSC network-endpoint-group for apigee
+-   `NEG_NAME`: Name of the PSC network-endpoint-group for Apigee
     service-attachment. ***[Required only when using PSC NEG]***
-
-### 2. Provision the new, temporary instance
-
-Run the following scripts to provision the new, temporary Apigee instance. The script
-handles environment configuration and network routing so that API traffic is routed to
-the new instance.
-
-
-Important: Before doing this step, you must create network space in your project with additional IP ranges of /22 and /28 blocks.
-For details, see [Prerequisites](https://cloud.google.com/apigee/docs/api-platform/system-administration/instance-recreate#prerequisites).
-
-Note: While each script periodically checks for the completion of Apigee's
-long-running-operations (LRO), you can always monitor their status by running: \
-**`bash 5_wait_for_apigee_operation.sh -o ${OPERATION_ID}`**
-
-#### ► Using Managed Instance Group (MIG)
-
-Run these scripts if the existing instance was configured with a MIG (most common):
-
-```shell
-1. REGION=##The Google Cloud region to install the new, temporary Apigee instance. Example: "us-east1"##
-2. bash 1_manage_instance.sh -r ${REGION} --create
-   # This script can take up to an hour to complete.
-3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
-   # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.
-4. bash 3_manage_environments.sh -r ${REGION} --attach
-5. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --create
-6. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --attach
-```
-
-#### ► Using Network Endpoint Group (NEG)
-
-Run these scripts if the existing instance was configured with a NEG (uncommon):
-
-```shell
-1. REGION=##The Google Cloud region to install the new, temporary Apigee instance. Example: "us-east1"##
-2. bash 1_manage_instance.sh -r ${REGION} --create
-3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
-   # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.
-4. bash 3_manage_environments.sh -r ${REGION} --attach
-5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --create
-6. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --attach
-```
-
-### 3. Remove the existing Apigee instance
-
-Run the following scripts to drain down and remove the existing instance.
-
-
-Note: While each script periodically checks for the completion of Apigee's
-long-running-operations (LRO), you can always monitor their status by running \
-`bash 5_wait_for_apigee_operation.sh -o ${OPERATION_ID}`
-
-#### ► Using Managed-Instance-Group (MIG)
-
-Run these scripts if the existing instance was configured with a MIG (most common):
-
-
-```shell
-1. REGION=##The Google Cloud region where the existing instance that you are replacing is deployed. Example: "us-west1"##
-2. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --detach
-3. bash 3_manage_environments.sh -r ${REGION} --detach
-4. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
-   # If you reserved NAT Addresses, remove them from your target allow-listing.
-5. bash 1_manage_instance.sh -r ${REGION} --delete
-6. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --delete
-```
-
-#### ► Using Network-Endpoint-Group (NEG)
-
-Run these scripts if the existing instance was configured with a NEG (uncommon):
-
-
-```shell
-1. REGION=##The Google Cloud region where the existing instance that you are replacing is deployed. Example: "us-west1"##
-2. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --detach
-3. bash 3_manage_environments.sh -r ${REGION} --detach
-4. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
-   # If you reserved NAT Addresses, remove them from your target allow-listing.
-5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --delete
-6. bash 1_manage_instance.sh -r ${REGION} --delete
-```
-
-
-### 4. Provision a new instance in the original region
-
-Run the following scripts to provision a new Apigee instance (the replacement instance) in the original region. The script
-handles environment configuration and network routing so that API traffic is routed to
-the new instance.
-
-
-Note: While each script periodically checks for the completion of Apigee's
-long-running-operations (LRO), you can always monitor their status by running \
-**`bash 5_wait_for_apigee_operation.sh -o ${OPERATION_ID}`**
-
-#### ► Using Managed Instance Group (MIG)
-
-Run these scripts if the original instance was configured with a MIG (most common):
-
-```shell
-1. REGION=##The Google Cloud region to install the new Apigee instance. Example: "us-west1"##
-2. bash 1_manage_instance.sh -r ${REGION} --create
-3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
-   # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.
-4. bash 3_manage_environments.sh -r ${REGION} --attach
-5. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --create
-6. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --attach
-```
-
-#### ► Using Network Endpoint Group (NEG)
-
-Run these scripts if the original instance was configured with a NEG (uncommon):
-
-```shell
-1. REGION=##The Google Cloud region to install the new Apigee instance. Example: "us-west1"##
-2. bash 1_manage_instance.sh -r ${REGION} --create
-3. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --count 2 --reserve
-   # If you reserve NAT Addresses, add them to your target allow-listing before proceeding.
-4. bash 3_manage_environments.sh -r ${REGION} --attach
-5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --create
-6. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --attach
-```
-
-
-### 5. Remove the temporary Apigee instance
-
-Run the following scripts to drain down and remove the temporary instance.
-
-
-Note: While each script periodically checks for the completion of Apigee's
-long-running-operations (LRO), you can always monitor their status by running \
-**`bash 5_wait_for_apigee_operation.sh -o ${OPERATION_ID}`**
-
-#### ► Using Managed-Instance-Group (MIG)
-
-Run these scripts if the original instance was configured with a MIG (most common):
-
-
-```shell
-1. REGION=##The Google Cloud region where the temporary instance is deployed. Example: "us-east1"##
-2. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --detach
-3. bash 3_manage_environments.sh -r ${REGION} --detach
-4. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
-   # If you reserved NAT Addresses, remove them from your target allow-listing.
-5. bash 1_manage_instance.sh -r ${REGION} --delete
-6. bash 4_manage_xlb_mig_backend.sh -r ${REGION} --delete
-```
-
-#### ► Using Network-Endpoint-Group (NEG)
-
-Run these scripts if the original instance was configured with a NEG (uncommon):
-
-
-```shell
-1. REGION=##The Google Cloud region where the temporary instance is deployed. Example: "us-east1"##
-2. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --detach
-3. bash 3_manage_environments.sh -r ${REGION} --detach
-4. [OPTIONAL] bash 2_manage_nat_address.sh -r ${REGION} --release
-   # If you reserved NAT Addresses, remove them from your target allow-listing.
-5. bash 4_manage_xlb_neg_backend.sh -r ${REGION} --delete
-6. bash 1_manage_instance.sh -r ${REGION} --delete
-```
-
 
 --------------------------------------------------------------------------------
 
@@ -258,8 +89,8 @@ Run these scripts if the original instance was configured with a NEG (uncommon):
 ### 1. Manage Instance: `bash 1_manage_instance.sh -h`
 
 This action is to manage creation / deletion of Apigee Instance for the given
-GCP region. While deleting, ensure that you at least have one
-other region taking traffic to avoid any interruptions/data-loss.
+GCP region. While deleting, ensure that you at least have one other region
+taking traffic to avoid any interruptions/data-loss.
 
 ```shell
 #**
@@ -282,8 +113,8 @@ other region taking traffic to avoid any interruptions/data-loss.
 ### 2. Manage NAT Address: `bash 2_manage_nat_address.sh -h`
 
 This action is to reserve & activate, or release southbound NAT Addresses to
-Apigee Instance for the given region. You should add the NAT IPs from
-the output of this script to their target allow-listing while reserving them.
+Apigee Instance for the given region. You should add the NAT IPs from the output
+of this script to their target allow-listing while reserving them.
 
 ```shell
 #**
@@ -311,7 +142,7 @@ the output of this script to their target allow-listing while reserving them.
 
 ### 3. Manage Environments: `bash 3_manage_environments.sh -h`
 
-This action is to attach / detach all the environments to Apigee Instance  for
+This action is to attach / detach all the environments to Apigee Instance for
 the given region. The environments should be listed at 'ENVIRONMENTS_LIST'
 variable in 'source.sh'.
 
@@ -340,8 +171,8 @@ This action is to create / attach / detach / delete the managed-instance-group
 load balancer.
 
 Note: This script neither creates a new backend-service nor a new load balancer.
-Instead, it creates/deletes managed-instance-group (MIG) that proxies traffic
-to Apigee Endpoint, and attaches/detaches the MIG as a backend to the existing
+Instead, it creates/deletes managed-instance-group (MIG) that proxies traffic to
+Apigee Endpoint, and attaches/detaches the MIG as a backend to the existing
 backend service.
 
 ```shell
@@ -377,9 +208,9 @@ This action is to create / attach / detach / delete the network-endpoint-group
 backend-service of the load balancer.
 
 Note: This script neither creates a new backend-service nor a new load balancer.
-Instead, it creates/deletes network-endpoint-group (NEG) to Apigee's
-Service Attachment Endpoint and attaches/detaches the NEG as a backend
-to the existing backend service.
+Instead, it creates/deletes network-endpoint-group (NEG) to Apigee's Service
+Attachment Endpoint and attaches/detaches the NEG as a backend to the existing
+backend service.
 
 ```shell
 #**
@@ -409,8 +240,8 @@ to the existing backend service.
 
 ### 5. Poll on Apigee LRO: `bash 5_wait_for_apigee_operation.sh -h`
 
-This action is to check the status of the Apigee operation periodically
-and wait for it to complete.
+This action is to check the status of the Apigee operation periodically and wait
+for it to complete.
 
 ```shell
 #**
