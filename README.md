@@ -77,7 +77,7 @@ functions:
 -   `BACKEND_SERVICE`: Name of the backend-service load-balancing the MIG/NEG.
 -   `MIG_NAME`: Name of the managed-instance-group hosting the Bridge VMs.
     ***[Required only when using MIG proxy]***
--   `NEG_NAME`: Name of the PSC network-endpoint-group for apigee
+-   `NEG_NAME`: Name of the PSC network-endpoint-group for Apigee
     service-attachment. ***[Required only when using PSC NEG]***
 
 --------------------------------------------------------------------------------
