@@ -83,10 +83,13 @@ The basic steps are:
 ### 2. Make sure other instances are capable of handling traffic.
 
 You need to make sure other instances which will handle the traffic has all the
-environments of the instance being created attached to them.
+environments of the instance being created attached to them. Make required
+routing changes to make sure traffic is moved away from the instance to be
+replaced.
 
 Run this command on the instances which will serve traffic of the instance being
-recreated to attach the environments.
+recreated to attach the environments. Only run this command instances where the
+environment list is not empty in the source.sh for this region.
 
 ```shell
 1. REGION=##The Google Cloud region to install the new Apigee instance. Example: "us-west1"##
@@ -172,7 +175,7 @@ Run these scripts if the original instance was configured with a NEG (uncommon):
 ### 5. Revert any additional environments attached to other instances.(optional)
 
 Run this command on the instances to which additional environments were
-attached.
+attached. Make required changes to direct traffic to the new recreated instance.
 
 ```shell
 1. REGION=##The Google Cloud region to install the new Apigee instance. Example: "us-west1"##
