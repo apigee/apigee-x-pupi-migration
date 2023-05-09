@@ -15,23 +15,26 @@ address the IP issue and take advantage of PUPI with Apigee.
 
 *   ***[Recreate instance with no downtime and no data loss](./recreate_with_no_downtime_and_no_data_loss.md)***:
     This is the recommended approach. Ideal if you are already multi region
-    Apigee but are not okay with other regions handling API requests temporarily
-    and don't want any data loss or downtime. This requires you to create a new
-    Apigee Instance.
+    Apigee but are not okay with other existing regions handling API requests
+    temporarily and don't want any data loss or downtime. This requires you to
+    create a new temporary Apigee Instance in a different region than the
+    existing ones.
 
 *   ***[Recreate instance with downtime and data loss - reuse other existing
     instances](./recreate_with_no_downtime_and_no_data_existing_multi_region.md)***:
     This is the recommended approach if you are already multi region Apigee and
-    are okay with other regions handling all the API requests temporarily and
-    don't want any data loss and downtime.
+    are okay with other existing regions handling all the API requests
+    temporarily and don't want any data loss and downtime. This approach does
+    not require you to create any temporary Apigee instances.
 
 *   ***[Recreate instance with downtime but with no data loss](./recreate_with_downtime_and_no_data_loss.md)***:
-    This is good if you are okay with downtime(probably for dev or qa Apigee
-    org) but still want to retain cassandra data.
+    This is good if you are okay with downtime (probably suitable for
+    non-production Apigee organizations) but still want to retain the runtime
+    data.
 
 *   ***[Recreate instance with downtime and data loss](./recreate_with_downtime_and_data_loss.md)***:
-    This is good if you are okay with downtime and data loss(probably for dev or
-    qa Apigee org).
+    This is good if you are okay with downtime and data loss(probably suitable
+    for non-production Apigee organizations).
 
 Apigee provides configuration scripts and scripts to perform all the required
 tasks for the migration. Read below about the configuration and the scripts.
