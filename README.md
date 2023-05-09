@@ -20,7 +20,8 @@ address the IP issue and take advantage of PUPI with Apigee.
     create a new temporary Apigee Instance in a different region than the
     existing ones.
 
-*   ***[Recreate instance with downtime and data loss - reuse other existing
+*   ***[Recreate instance with no downtime and no data loss - reuse other
+    existing
     instances](./recreate_with_no_downtime_and_no_data_existing_multi_region.md)***:
     This is the recommended approach if you are already multi region Apigee and
     are okay with other existing regions handling all the API requests
